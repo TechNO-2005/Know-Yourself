@@ -1,0 +1,140 @@
+I want to build a web app called **"Know Yourself"** — a flexible self-reflection tool for students and young individuals inspired by Ivy League college essay prompts.
+
+---
+
+### 📌 What the app does:
+
+The user is guided through a set of deep, introspective questions (1 per page). They can answer as many as they wish and return to their responses anytime. All data — including reflections, AI insights, and personal realizations — is securely stored under their account. At any point, they can trigger a Gemini-powered AI analysis that generates clear, critical insights into their reflections. Finally, the user adds their own summary of what they learned.
+
+---
+
+### 🔐 Authentication (Feature 1):
+
+* Users must **sign up or log in** with username and password
+* Store login data securely in a `users` database
+* Each user has a unique ID linking to their answers and analysis
+
+---
+
+### 🧭 Navigation:
+
+* **Breadcrumbs** shown at the top of each page for orientation
+* Each question on a dedicated page
+* Users can go back and forth freely
+
+---
+
+### ✍️ Reflection Questions (Feature 2):
+
+* Each question has:
+
+  * A core prompt
+  * A brief guide on what to reflect on
+  * A large text input box
+  * Options: **Save & Next**, **Trigger AI Analysis Now**
+  * Auto-save enabled (answers update in real-time)
+  * Responses can be edited at any time
+
+#### 🔟 Themes and Their Questions:
+
+1. **Identity / Roots**
+   *Describe a background, interest, or talent that has deeply shaped who you are today. Why is it significant to you?*
+   *Reflect on something that’s been with you for a long time — a family tradition, a personal passion, or an experience that defines your roots. What role does it play in how you think or behave today?*
+
+2. **Challenge / Failure**
+   *Talk about a meaningful failure or challenge you’ve faced. What did it teach you about yourself?*
+   *Don’t focus on the mistake itself, but how it changed your thinking. Show vulnerability, growth, and the lessons you wouldn’t have learned otherwise.*
+
+3. **Questioning Beliefs**
+   *Describe a time you seriously questioned a belief or assumption you once held. What changed inside you?*
+   *Reflect on how you handled discomfort, confrontation, or change. What did the shift reveal about you?*
+
+4. **Experiencing Gratitude**
+   *Reflect on a person or moment that made you feel truly grateful. How did it shape your perspective or behavior?*
+   *Go beyond just saying “thank you.” Explore why that moment/person mattered, what values it revealed in you, and how it still affects your actions.*
+
+5. **Personal Growth**
+   *What event or realization made you aware of something deep about yourself? How did it change how you live or think?*
+   *Talk about a turning point — a time when you discovered a part of yourself you hadn’t fully seen before.*
+
+6. **Passion / Flow**
+   *Describe an activity or topic that completely absorbs you — something you do where time disappears. What do you think this says about who you are?*
+   *What lights you up? What kind of problems do you enjoy solving?*
+
+7. **Community / Belonging**
+   *Talk about a community or group you feel strongly connected to. What role does it play in your life?*
+   *How have you contributed or been shaped by others? What does belonging mean to you?*
+
+8. **Ethical Courage**
+   *Describe a time you stood up for someone or something important, even when it was difficult. What did you learn about your inner strength?*
+   *Reflect on fear, doubt, and what gave you the courage to act anyway.*
+
+9. **Influences**
+   *Who has had a significant influence on how you think or live? What’s the most important lesson they taught you?*
+   *Pick someone real. What did their presence reveal about you?*
+
+10. **Open / Creative Self**
+    *What’s something unusual, surprising, or creative that really matters to you — and what does it reveal about your personality?*
+    *Think about a strange obsession, talent, or worldview you have. What makes it yours, and why do you treasure it?*
+
+---
+
+### 🤖 AI Analysis (Feature 3):
+
+* AI analysis can be requested after any question or after all answers
+* Powered by **Gemini API**
+* The prompt sent to Gemini:
+
+```text
+Provide a crisp and critical analysis of all the answers to the questions on self-reflection by the user using all psychological principles. It is not going to be a gospel truth, rather an AI-based interpretation.
+```
+
+* Gemini returns:
+
+  * A list of **7–10 psychological self-discoveries** (clear bullet points)
+  * **No paragraph**, just sharp, accurate observations
+* AI response is shown on a results page and saved in the database
+
+---
+
+### 📘 Final Step – What the User Learned (Feature 4):
+
+* Prompt:
+
+  > "Write anything you personally learned about yourself from this experience. There’s no limit. Reflect freely."
+* Stored as part of user’s data, editable anytime
+
+---
+
+### 🗃️ Database Schema:
+
+* `users`: user\_id, username, password\_hash, created\_at
+* `reflections`: user\_id, question\_id, question\_text, user\_response, updated\_at
+* `analysis`: user\_id, self\_discoveries (array), analysis\_timestamp
+* `final_learnings`: user\_id, self\_written\_learnings (text), submitted\_at
+
+---
+
+### ✅ App Stack Notes:
+
+* Built with **React + Supabase** (or Firebase alternative)
+* Backend calls Gemini API securely
+* Breadcrumbs enable smooth navigation
+* Auto-save while typing, and responses remain editable
+
+---
+
+### 🪩 Homepage Quote:
+
+> **"Reflection without action becomes illusion. Learn, then move forward."**
+
+(This is to gently remind users that self-awareness should serve growth, not stall it.)
+
+---
+
+Let me know if you want:
+
+* Gemini code for AI analysis
+* Realtime usage tracking
+* Personalized suggestions based on analysis
+* PDF export of reflection journey
