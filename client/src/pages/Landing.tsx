@@ -73,19 +73,23 @@ export default function Landing() {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
-                onClick={handleSignIn}
+                asChild
                 className="px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
-                <i className="fas fa-rocket mr-2"></i>
-                Start Your Journey
+                <Link href="/login">
+                  <i className="fas fa-rocket mr-2"></i>
+                  Start Your Journey
+                </Link>
               </Button>
               <Button 
                 variant="outline"
-                onClick={handleSignIn}
+                asChild
                 className="px-8 py-4 bg-white text-slate-700 rounded-xl font-semibold border-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all duration-300"
               >
-                <i className="fas fa-sign-in-alt mr-2"></i>
-                Sign In
+                <Link href="/register">
+                  <i className="fas fa-user-plus mr-2"></i>
+                  Create Account
+                </Link>
               </Button>
             </div>
           </div>

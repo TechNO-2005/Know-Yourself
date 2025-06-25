@@ -189,9 +189,91 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Questions routes
-  app.get('/api/questions', isAuthenticated, async (req, res) => {
-    res.json(QUESTIONS);
+  // Questions routes (public access for landing page)
+  app.get('/api/questions', async (req, res) => {
+    const questions = [
+      {
+        id: 1,
+        theme: "Identity / Roots",
+        icon: "🌱",
+        color: "from-emerald-500 to-teal-600",
+        prompt: "Who are you when no one is watching? Describe your truest self.",
+        guide: "Think about your core values, what drives you, and the person you are in private moments."
+      },
+      {
+        id: 2,
+        theme: "Challenge / Growth",
+        icon: "⛰️",
+        color: "from-orange-500 to-red-600",
+        prompt: "Tell us about a time you failed at something important and what you learned.",
+        guide: "Focus on resilience, growth mindset, and how challenges shaped your character."
+      },
+      {
+        id: 3,
+        theme: "Values / Beliefs",
+        icon: "💎",
+        color: "from-blue-500 to-indigo-600",
+        prompt: "What principle or belief would you never compromise on, and why?",
+        guide: "Explore your moral compass and what fundamentally guides your decisions."
+      },
+      {
+        id: 4,
+        theme: "Gratitude / Appreciation",
+        icon: "🙏",
+        color: "from-pink-500 to-rose-600",
+        prompt: "What are you most grateful for that others might take for granted?",
+        guide: "Reflect on unique aspects of your life, relationships, or opportunities."
+      },
+      {
+        id: 5,
+        theme: "Problem-solving",
+        icon: "🧩",
+        color: "from-purple-500 to-violet-600",
+        prompt: "Describe a complex problem you solved and your thought process.",
+        guide: "Showcase analytical thinking, creativity, and persistence in problem-solving."
+      },
+      {
+        id: 6,
+        theme: "Learning / Curiosity",
+        icon: "📚",
+        color: "from-cyan-500 to-blue-600",
+        prompt: "What's something you taught yourself, and why did it matter to you?",
+        guide: "Demonstrate intellectual curiosity and self-directed learning abilities."
+      },
+      {
+        id: 7,
+        theme: "Community / Impact",
+        icon: "🤝",
+        color: "from-green-500 to-emerald-600",
+        prompt: "How have you contributed to your community or helped others grow?",
+        guide: "Show leadership, empathy, and commitment to making a positive difference."
+      },
+      {
+        id: 8,
+        theme: "Intellectual Curiosity",
+        icon: "🔬",
+        color: "from-indigo-500 to-purple-600",
+        prompt: "What question keeps you up at night, and how are you exploring it?",
+        guide: "Reveal your intellectual passions and commitment to deeper understanding."
+      },
+      {
+        id: 9,
+        theme: "Meaningful Moments",
+        icon: "✨",
+        color: "from-yellow-500 to-orange-600",
+        prompt: "Describe a moment that changed your perspective on life.",
+        guide: "Share transformative experiences and personal growth moments."
+      },
+      {
+        id: 10,
+        theme: "Future Vision",
+        icon: "🚀",
+        color: "from-violet-500 to-purple-600",
+        prompt: "Where do you see yourself in 10 years, and what steps are you taking now?",
+        guide: "Demonstrate goal-setting, planning, and commitment to personal development."
+      }
+    ];
+    res.json(questions);
   });
 
   app.get('/api/questions/:id', isAuthenticated, async (req, res) => {
@@ -208,7 +290,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Reflections routes
   app.get('/api/reflections', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const reflections = await storage.getUserReflections(userId);
       res.json(reflections);
     } catch (error) {
@@ -219,7 +301,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/reflections/:questionId', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const questionId = parseInt(req.params.questionId);
       const reflection = await storage.getReflection(userId, questionId);
       res.json(reflection);

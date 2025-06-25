@@ -16,15 +16,25 @@ import NotFound from "@/pages/not-found";
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Switch>
-      {isLoading ? (
-        <Route path="/" component={() => <div className="min-h-screen flex items-center justify-center">Loading...</div>} />
-      ) : !isAuthenticated ? (
+      {!isAuthenticated ? (
         <>
           <Route path="/" component={Landing} />
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
+          <Route component={NotFound} />
         </>
       ) : (
         <>
@@ -32,9 +42,9 @@ function Router() {
           <Route path="/question/:id" component={Question} />
           <Route path="/analysis" component={AIAnalysis} />
           <Route path="/final-learning" component={FinalLearning} />
+          <Route component={NotFound} />
         </>
       )}
-      <Route component={NotFound} />
     </Switch>
   );
 }

@@ -66,8 +66,14 @@ export default function Home() {
     return colorMap[color] || colorMap.blue;
   };
 
-  const handleLogout = () => {
-    window.location.href = "/api/logout";
+  const handleLogout = async () => {
+    try {
+      await apiRequest("POST", "/api/auth/logout", {});
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      window.location.href = '/';
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   return (
