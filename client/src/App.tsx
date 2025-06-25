@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/Landing";
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
 import Home from "@/pages/Home";
 import Question from "@/pages/Question";
 import AIAnalysis from "@/pages/AIAnalysis";
@@ -16,8 +18,14 @@ function Router() {
 
   return (
     <Switch>
-      {isLoading || !isAuthenticated ? (
-        <Route path="/" component={Landing} />
+      {isLoading ? (
+        <Route path="/" component={() => <div className="min-h-screen flex items-center justify-center">Loading...</div>} />
+      ) : !isAuthenticated ? (
+        <>
+          <Route path="/" component={Landing} />
+          <Route path="/login" component={Login} />
+          <Route path="/register" component={Register} />
+        </>
       ) : (
         <>
           <Route path="/" component={Home} />

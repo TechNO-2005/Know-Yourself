@@ -31,10 +31,10 @@ Know Yourself is a web application designed to guide students and young individu
 ## Key Components
 
 ### Authentication System
-- **Provider**: Replit Auth with OIDC (OpenID Connect)
+- **Provider**: Username/Password authentication with bcrypt hashing
 - **Session Storage**: PostgreSQL-backed sessions using connect-pg-simple
-- **User Management**: Automatic user creation/updates on login
-- **Security**: HTTP-only cookies with secure settings
+- **User Management**: User registration and login with secure password storage
+- **Security**: HTTP-only cookies with secure settings and password hashing
 
 ### Data Models
 - **Users**: Core user profile with Replit integration
@@ -131,7 +131,15 @@ Know Yourself is a web application designed to guide students and young individu
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+✓ Implemented username/password authentication system replacing Replit Auth
+✓ Created login and registration pages with proper form validation
+✓ Updated user schema with username and password fields
+✓ Fixed AI analysis endpoint routing to /api/analysis/generate
+✓ Updated all authentication flows to use sessions instead of OIDC tokens
+
 ## Changelog
 
-Changelog:
-- June 25, 2025. Initial setup
+- June 25, 2025: Initial setup with Replit Auth
+- June 25, 2025: Replaced with username/password authentication system

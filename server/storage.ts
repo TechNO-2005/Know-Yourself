@@ -17,8 +17,10 @@ import { eq, and } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
-  // User operations (mandatory for Replit Auth)
+  // User operations 
   getUser(id: string): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  createUser(user: UpsertUser): Promise<User>;
   upsertUser(user: UpsertUser): Promise<User>;
   
   // Reflection operations
@@ -39,6 +41,19 @@ export class DatabaseStorage implements IStorage {
   // User operations (mandatory for Replit Auth)
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
+  async createUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .returning();
     return user;
   }
 
@@ -118,8 +133,8 @@ export class DatabaseStorage implements IStorage {
       .insert(analysis)
       .values({
         userId: analysisData.userId,
-        selfDiscoveries: analysisData.selfDiscoveries || []
-      })
+        selfDiscoveries: analysisData.selfDiscoveries
+      } as any)
       .returning();
     return newAnalysis;
   }

@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, isAuthenticated, hashPassword, comparePassword } from "./auth";
 import { analyzeSelfReflections } from "./gemini";
 import { 
   insertReflectionSchema,
@@ -101,11 +101,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
   await setupAuth(app);
 
   // Auth routes
+  app.post('/api/auth/register', async (req, res) => {
+    try {
+      const { username, password, email, firstName, lastName } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ message: "Username and password are required" });
+      }
+
+      // Check if user already exists
+      const existingUser = await storage.getUserByUsername(username);
+      if (existingUser) {
+        return res.status(400).json({ message: "Username already exists" });
+      }
+
+      // Hash password and create user
+      const hashedPassword = await hashPassword(password);
+      const userId = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+      
+      const user = await storage.createUser({
+        id: userId,
+        username,
+        password: hashedPassword,
+        email,
+        firstName,
+        lastName,
+      });
+
+      // Set session
+      req.session.userId = user.id;
+      req.session.username = user.username;
+
+      res.json({ id: user.id, username: user.username, email: user.email });
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(500).json({ message: "Registration failed" });
+    }
+  });
+
+  app.post('/api/auth/login', async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ message: "Username and password are required" });
+      }
+
+      // Find user and verify password
+      const user = await storage.getUserByUsername(username);
+      if (!user || !await comparePassword(password, user.password)) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      // Set session
+      req.session.userId = user.id;
+      req.session.username = user.username;
+
+      res.json({ id: user.id, username: user.username, email: user.email });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ message: "Login failed" });
+    }
+  });
+
+  app.post('/api/auth/logout', (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ message: "Logout failed" });
+      }
+      res.json({ message: "Logged out successfully" });
+    });
+  });
+
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const user = await storage.getUser(userId);
-      res.json(user);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      // Don't send password hash
+      const { password, ...userWithoutPassword } = user;
+      res.json(userWithoutPassword);
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
@@ -154,7 +231,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/reflections', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const reflectionData = insertReflectionSchema.parse({
         ...req.body,
         userId
@@ -171,7 +248,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // AI Analysis routes
   app.get('/api/analysis', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const analysis = await storage.getUserAnalysis(userId);
       res.json(analysis);
     } catch (error) {
@@ -182,7 +259,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/analysis/generate', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       
       // Get all user reflections
       const reflections = await storage.getUserReflections(userId);
@@ -214,7 +291,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Final learnings routes
   app.get('/api/final-learnings', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const learnings = await storage.getFinalLearnings(userId);
       res.json(learnings);
     } catch (error) {
@@ -225,7 +302,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/final-learnings', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const learningsData = insertFinalLearningsSchema.parse({
         ...req.body,
         userId
@@ -242,7 +319,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Progress route
   app.get('/api/progress', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId;
       const reflections = await storage.getUserReflections(userId);
       const completedCount = reflections.filter(r => r.userResponse && r.userResponse.trim().length > 0).length;
       const totalQuestions = QUESTIONS.length;
