@@ -364,8 +364,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const analysis = await storage.saveAnalysis(analysisData);
       res.json(analysis);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error generating analysis:", error);
+      
+      if (error.message.includes('No completed reflections')) {
+        return res.status(400).json({ message: error.message });
+      }
+      
       res.status(500).json({ message: "Failed to generate analysis" });
     }
   });

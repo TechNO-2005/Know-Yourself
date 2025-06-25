@@ -138,6 +138,9 @@ Preferred communication style: Simple, everyday language.
 ✓ Updated user schema with username and password fields
 ✓ Fixed AI analysis endpoint routing to /api/analysis/generate
 ✓ Updated all authentication flows to use sessions instead of OIDC tokens
+✓ Fixed AI analysis quota issues by switching to Gemini 1.5 Flash model
+✓ Added fallback analysis system for when API quotas are exceeded
+✓ Improved error handling and user feedback for AI analysis failures
 
 ## Changelog
 

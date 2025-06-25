@@ -34,10 +34,16 @@ export default function AIAnalysis() {
         description: "Your psychological insights are ready!",
       });
     },
-    onError: (error) => {
+    onError: (error: Error) => {
+      let description = "Failed to generate analysis. Please try again later.";
+      
+      if (error.message.includes('No completed reflections')) {
+        description = "Please complete at least one reflection before requesting analysis.";
+      }
+      
       toast({
-        title: "Analysis Error",
-        description: "Failed to generate analysis. Please ensure you have completed at least one reflection.",
+        title: "Analysis Error", 
+        description,
         variant: "destructive",
       });
     },

@@ -8,20 +8,16 @@ export async function analyzeSelfReflections(reflections: string[]): Promise<str
   try {
     const reflectionText = reflections.join('\n\n---\n\n');
     
-    const prompt = `Provide a crisp and critical analysis of all the answers to the questions on self-reflection by the user using all psychological principles. It is not going to be a gospel truth, rather an AI-based interpretation.
+    const prompt = `Analyze these self-reflections and provide 5-7 key psychological insights:
 
-Based on these reflections:
 ${reflectionText}
 
-Please provide 7-10 psychological self-discoveries as clear, sharp bullet points. Each discovery should be a concise observation about the person's psychological patterns, growth areas, strengths, or behavioral tendencies. Focus on actionable insights rather than generic statements.
+Return a JSON array of strings. Each insight should start with a bold psychological concept followed by a colon and brief explanation.
 
-Format your response as a JSON array of strings, where each string is a psychological discovery starting with a bold psychological concept followed by a colon and explanation.
-
-Example format:
-["**Growth Mindset Orientation:** Your response demonstrates...", "**Emotional Regulation Development:** You show evidence of..."]`;
+Example: ["**Growth Mindset:** You demonstrate resilience...", "**Self-Awareness:** Your reflections show..."]`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-pro",
+      model: "gemini-1.5-flash",
       config: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -41,8 +37,19 @@ Example format:
     } else {
       throw new Error("Empty response from AI model");
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to analyze reflections:", error);
-    throw new Error(`Failed to analyze reflections: ${error}`);
+    
+    // Handle quota exceeded error specifically
+    if (error.status === 429 || error.message?.includes('quota')) {
+      throw new Error("AI analysis is temporarily unavailable due to high demand. Please try again in a few minutes.");
+    }
+    
+    // Handle other API errors
+    if (error.status >= 400) {
+      throw new Error("AI analysis service is currently unavailable. Please try again later.");
+    }
+    
+    throw new Error(`Failed to analyze reflections: ${error.message || 'Unknown error'}`);
   }
 }
